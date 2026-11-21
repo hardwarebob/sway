@@ -19,6 +19,8 @@
 #include "log.h"
 #include "util.h"
 #include "sway/commands.h"
+#include <wlr/backend/libinput.h>
+#include "sway/lock.h"
 #include "sway/input/cursor.h"
 #include "sway/input/keyboard.h"
 #include "sway/input/tablet.h"
@@ -262,6 +264,11 @@ void cursor_handle_activity_from_idle_source(struct sway_cursor *cursor,
 
 void cursor_handle_activity_from_device(struct sway_cursor *cursor,
 		struct wlr_input_device *device) {
+	if (device && !wlr_input_device_is_libinput(device) &&
+			server.session_lock.lock &&
+			sway_session_lock_has_unlocked_output()) {
+		return;
+	}
 	enum sway_input_idle_source idle_source = idle_source_from_device(device);
 	cursor_handle_activity_from_idle_source(cursor, idle_source);
 }

@@ -17,6 +17,7 @@
 #include "list.h"
 #include "log.h"
 #include "sway/config.h"
+#include "sway/lock.h"
 #include "sway/scene_descriptor.h"
 #include "sway/input/cursor.h"
 #include "sway/input/input-manager.h"
@@ -1064,7 +1065,8 @@ void seat_configure_xcursor(struct sway_seat *seat) {
 bool seat_is_input_allowed(struct sway_seat *seat,
 		struct wlr_surface *surface) {
 	if (server.session_lock.lock) {
-		return sway_session_lock_has_surface(server.session_lock.lock, surface);
+		return sway_session_lock_has_surface(server.session_lock.lock, surface) ||
+			sway_session_lock_is_surface_on_unlocked_output(surface);
 	}
 	return true;
 }

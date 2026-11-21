@@ -9,6 +9,10 @@
 #include "sway/output.h"
 #include "sway/server.h"
 #include "sway/lock.h"
+#include "sway/tree/container.h"
+#include "sway/tree/root.h"
+#include "sway/tree/view.h"
+#include "sway/tree/workspace.h"
 
 struct sway_session_lock_output {
 	struct wlr_scene_tree *tree;
@@ -288,7 +292,9 @@ static void handle_session_lock(struct wl_listener *listener, void *data) {
 
 	struct sway_output *output;
 	wl_list_for_each(output, &root->all_outputs, link) {
-		sway_session_lock_add_output(sway_lock, output);
+		if (!output->unlocked_while_locked) {
+			sway_session_lock_add_output(sway_lock, output);
+		}
 	}
 
 	sway_lock->new_surface.notify = handle_new_surface;
@@ -320,6 +326,10 @@ static void handle_session_lock_destroy(struct wl_listener *listener, void *data
 
 void sway_session_lock_add_output(struct sway_session_lock *lock,
 		struct sway_output *output) {
+	if (output->unlocked_while_locked) {
+		return;
+	}
+
 	struct sway_session_lock_output *lock_output =
 		session_lock_output_create(lock, output);
 
@@ -337,6 +347,32 @@ bool sway_session_lock_has_surface(struct sway_session_lock *lock,
 	struct sway_session_lock_output *lock_output;
 	wl_list_for_each(lock_output, &lock->outputs, link) {
 		if (lock_output->surface && lock_output->surface->surface == surface) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool sway_session_lock_has_unlocked_output(void) {
+	struct sway_output *output;
+	wl_list_for_each(output, &root->all_outputs, link) {
+		if (output->unlocked_while_locked) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool sway_session_lock_is_surface_on_unlocked_output(struct wlr_surface *surface) {
+	if (!surface) {
+		return false;
+	}
+
+	struct sway_view *view = view_from_wlr_surface(surface);
+	if (view && view->container && view->container->pending.workspace) {
+		struct sway_output *output = view->container->pending.workspace->output;
+		if (output && output->unlocked_while_locked) {
 			return true;
 		}
 	}

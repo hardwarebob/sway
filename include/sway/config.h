@@ -298,6 +298,7 @@ struct output_config {
 	struct wlr_color_transform *color_transform;
 	int allow_tearing;
 	int hdr;
+	int unlocked_while_locked;
 
 	char *background;
 	char *background_option;

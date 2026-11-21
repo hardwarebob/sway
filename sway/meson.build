@@ -206,6 +206,7 @@ sway_sources = files(
 	'commands/output/subpixel.c',
 	'commands/output/toggle.c',
 	'commands/output/transform.c',
+	'commands/output/unlocked_while_locked.c',
 	'commands/output/unplug.c',
 	'commands/output/color_profile.c',
 

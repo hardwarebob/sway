@@ -80,6 +80,7 @@ struct output_config *new_output_config(const char *name) {
 	oc->power = -1;
 	oc->allow_tearing = -1;
 	oc->hdr = -1;
+	oc->unlocked_while_locked = -1;
 	return oc;
 }
 
@@ -158,6 +159,9 @@ static void supersede_output_config(struct output_config *dst, struct output_con
 	if (src->hdr != -1) {
 		dst->hdr = -1;
 	}
+	if (src->unlocked_while_locked != -1) {
+		dst->unlocked_while_locked = -1;
+	}
 }
 
 // merge_output_config sets all fields in dst that were set in src
@@ -235,6 +239,9 @@ static void merge_output_config(struct output_config *dst, struct output_config 
 	}
 	if (src->hdr != -1) {
 		dst->hdr = src->hdr;
+	}
+	if (src->unlocked_while_locked != -1) {
+		dst->unlocked_while_locked = src->unlocked_while_locked;
 	}
 }
 
@@ -687,6 +694,7 @@ static bool finalize_output_config(struct output_config *oc, struct sway_output 
 	output->max_render_time = oc && oc->max_render_time > 0 ? oc->max_render_time : 0;
 	output->allow_tearing = oc && oc->allow_tearing > 0;
 	output->hdr = applied->image_description != NULL;
+	output->unlocked_while_locked = oc && oc->unlocked_while_locked > 0;
 
 	return true;
 }

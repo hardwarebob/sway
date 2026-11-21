@@ -72,6 +72,7 @@ struct sway_output {
 
 	bool allow_tearing;
 	bool hdr;
+	bool unlocked_while_locked;
 };
 
 struct sway_output_non_desktop {

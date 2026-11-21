@@ -10,6 +10,8 @@
 #include <xkbcommon/xkbcommon-names.h>
 #include "sway/commands.h"
 #include "sway/input/input-manager.h"
+#include <wlr/backend/libinput.h>
+#include "sway/lock.h"
 #include "sway/input/keyboard.h"
 #include "sway/input/seat.h"
 #include "sway/input/cursor.h"
@@ -438,7 +440,11 @@ static void handle_key_event(struct sway_keyboard *keyboard,
 		keyboard->seat_device->input_device->wlr_device;
 	char *device_identifier = input_device_get_identifier(wlr_device);
 	bool exact_identifier = keyboard->wlr->group != NULL;
-	seat_idle_notify_activity(seat, IDLE_SOURCE_KEYBOARD);
+	if (!wlr_device || wlr_input_device_is_libinput(wlr_device) ||
+			!server.session_lock.lock ||
+			!sway_session_lock_has_unlocked_output()) {
+		seat_idle_notify_activity(seat, IDLE_SOURCE_KEYBOARD);
+	}
 	bool locked = server.session_lock.lock;
 	struct sway_keyboard_shortcuts_inhibitor *sway_inhibitor =
 		keyboard_shortcuts_inhibitor_get_for_focused_surface(seat);

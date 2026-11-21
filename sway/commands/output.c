@@ -30,6 +30,7 @@ static const struct cmd_handler output_handlers[] = {
 	{ "subpixel", output_cmd_subpixel },
 	{ "toggle", output_cmd_toggle },
 	{ "transform", output_cmd_transform },
+	{ "unlocked_while_locked", output_cmd_unlocked_while_locked },
 	{ "unplug", output_cmd_unplug },
 };
 
